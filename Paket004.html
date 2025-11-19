@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Paket004</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Paket004</title>  
+  <body>
+  <!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#f7f7f7;color:#111}
+.container{max-width:900px;margin:16px auto;background:#fff;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.header{display:flex;justify-content:space-between;align-items:center}
+.timer{font-weight:700}
+.nav-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+#prevBtn,#nextBtn{padding:6px 10px}
+.qnumbers{display:flex;flex-wrap:wrap;gap:6px}
+.qnumbers button{width:34px;height:34px;border-radius:4px;border:1px solid #ccc;background:#fff}
+.page{display:none}
+.page.active{display:block}
+.options{margin-top:12px;}
+.option{display:block;padding:10px;border:1px solid #ddd;margin-bottom:8px;border-radius:6px;cursor:pointer}
+.option .label{font-weight:700;margin-right:8px}
+.option.selected{background:#e6f7ff;border-color:#80d0ff}
+.bottom-submit{margin-top:24px;text-align:center}
+#submitBtn{padding:10px 18px;font-size:16px}
+.scoreBox{margin-top:20px;padding:12px;background:#eef9ea;border:1px solid #c6e8c0;display:none}
+.disabled{pointer-events:none;opacity:0.6}
+.audioPlayOnce{margin-left:8px}
+.img-option{max-width:200px;display:block;margin-top:8px}
+.question-img{max-width:100%;height:auto;margin-top:8px}
+.top-controls{display:flex;gap:8px;align-items:center}
+.footer-note{font-size:12px;color:#666;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div><h2>SoalMahmud004 - UJIAN BAHASA KOREA</h2></div>
+    <div class="timer">Sisa waktu: <span id="timer">50:00</span></div>
+  </div>
+
+  <div class="nav-top">
+    <div class="top-controls">
+      <button id="prevBtn">Sebelumnya</button>
+      <button id="nextBtn">Berikutnya</button>
+    </div>
+    <div class="qnumbers" id="qnumbers" aria-label="Nomor Soal"></div>
+  </div>
+
+  <div id="pages" role="main" aria-live="polite"></div>
+
+  <div class="bottom-submit">
+    <button id="submitBtn">Submit</button>
+    <div id="scoreBox" class="scoreBox" role="status" aria-live="polite"></div>
+    <div class="footer-note">Setelah submit, jawaban tidak dapat diubah. Jika waktu habis, sistem akan otomatis submit.</div>
+  </div>
+</div>
+<script>
+// Embedded questions (no fetch)
+const questions =[
+  
+  {"id": 1, "type": "mcq_img", "text": "[1 – 2] 다음 그림을 보고 맞는 단어나 문장을 고르십시오.<p>1.", "img": "1.jpg", "options": ["연날리기입니다", "제기차기입니다", "팽이치기입니다", "공기놀이입니다"], "answer": 3},
+  {"id": 2, "type": "mcq_img", "text": "2.",  "img": "2.jpg", "options": ["먼지를 떨고 있습니다.", "복도를 닦고 있습니다.", "청소기를 돌리고 있습니다.", "빗자루로 쓸고 있습니다."], "answer": 4},
+  {"id": 3, "type": "mcq", "text": "[3 – 4] 다음 질문에 답하십시오.<p>3. 다음 단어와 관계있는 것은 고르십시오.<p>술, 눈, 발목.", "options": ["감다", "붓다", "낫다", "담다"], "answer": 2},
+  {"id": 4, "type": "mcq", "text": "4. 다음 단어의 비슷말은 무엇입니까 ?<p>거부하다", "options": ["거절하다", "강제하다", "이해하다", "속상하다"], "answer": 1},
+  {"id": 5, "type": "mcq", "text": "[5 – 8] 빈칸에 들아갈 가장 알맞은 것을 고르십시오.<p>5.<br>가: 세탁기를 사고 싶은데 값이 너무 비싸네요.<br>나: 우리 집근처에..........에 가면 중고 상품을 싸게 살 수 있어요." , "options": ["재활용센터", "세탁소", "부동산", "편의점"], "answer": 1},
+  {"id": 6, "type": "mcq", "text": "6. 오늘 극장에 늦게..........영화를 못 봤어요.", "options": ["도착하는 바람에", "도착한 덕분에", "일어나는 바람에", "일어난 덕분에"], "answer": 1},
+  {"id": 7, "type": "mcq", "text": "7.<br>가 : 창문을 매일 닦아도 이렇게 먼지가 붙이니까 청소를 하기 너무 힘들지요 ?<br>나 : 좀 힘들기는 한데요.  .............하루라도 안 닦으묜 너무 지저분해지잖아요.", "options": ["그리고", "그래도", "그러면", "그래서"], "answer": 2},
+  {"id": 8, "type": "mcq", "text": "8.<br>가 : 식사는 항상 댁에서 하세요 ?<br>나 : 아니요, 아침은 주로 집에서..........점심과 저녁은 밖에서 사 먹어요.", "options": ["먹는 편이지만", "먹을 때이지만", "먹는 법이지만", "먹을 뿐이지만"], "answer": 1},
+  {"id": 9, "type": "mcq_img", "text": "[9 – 12] 다음 질문에 답하십시오.<p>9. 다음 그림을 보고 알맞은 것을 고르십시오.", "img": "9.jpg", "options": ["빨리 운전을 하면 안 됩니다.", "음주 운전을 하면 안 됩니다.", "길을 건너면 안 됩니다.", "정지하면 안 됩니다."], "answer": 1},
+  {"id": 10, "type": "mcq_img", "text": "10. 다음에 그래프에 대한 설면으로 맞는 것은 무엇입니까 ?", "img": "10.jpg", "options": ["어업 종사자의 비율이 더 높습니다.", "제조업 종사자의 수가 반 이상입니다.", "건설업보다 농축산업 종사자의 수가 많습니다.", "농축산업 종사자가 제조업 종사자 수의 두 배가 넘습니다."], "answer": 2},
+  {"id": 11, "type": "mcq_img", "text": "다음에 그래프에 대한 설면으로 맞는 것은 무엇입니까 ?", "img": "11.jpg", "options": ["가을보다 봄에 여행하는 사람의 수가 적다.", "겨울에는 사람들이 별로 밖에 나가지 않다.", "봄에는 가장 많은 사람들이 휴가를 보낸다.", "가을은 휴가를 게울 때 두 번째로 선택이 된다."], "answer": 2},
+  {"id": 12, "type": "mcq_img", "text": "12. 다음을 보고 내용과 맞지 않는 것을 고르십시오.", "img": "12.jpg", "options": ["샤워장 사용이 오월 십일부터 금지 됩니다.", "샤워장 수리를 하고 있습니다.", "샤워장이 폐업합니다.", "샤워장 수리는 한 달이 넘게 걸립니다."], "answer": 3},
+  {"id": 13, "type": "mcq", "text": "[13 – 14] 빈칸에 들어갈 가장 알맞은 것을 고르십시오.<p>13. 남자와 여자를..........행동과 말이 상대방에게 불쾌감을 느끼게 했다면 그것도 성회롱입니다.", "options": ["판단하는", "판단하고", "차별하는", "차별하고"], "answer": 3},
+  {"id": 14, "type": "mcq", "text": "14. 우리 오빠는 대구에서 대학교에 다닙니다. 다음 주 일요일은 오빠의 생일입니다. 그래서 다음 주말에 오빠를..........", "options": ["만나러 갔습니다", "다녀올 겁니다", "만나러 갈 겁니다", "다닐 겁니다"], "answer": 3},
+  {"id": 15, "type": "mcq", "text": "[15 – 16] 다음 글을 읽고 무엇에 대한 글인지 고르십시오.<p>15. 가정에서 즐기던 삼아리에 화살을 던져 넣는 게임입니다. 주로 공중이나 양반 가정에서 즐기던 놀이로, 정확한 조준과 기술이 요구됩니다. 단순한 오락을 넘어서 집중력과 인내력을 기르는 데 도움이 되며, 전통 문화를 보존하고 계승하는 중요한 역할을 합니다.", "options": ["탈춤", "씨름", "가마", "투호"], "answer": 4},
+  {"id": 16, "type": "mcq", "text": "16. 우리 동네에는 제가 가끔 가는 내과 병원이 있습니다. 배가 아프거나 감기에 걸렸을 때 저는 그 병원에서 진료를 받았습니다. 오늘 퇴근하는 길에 보니 그 병원 옆에 치과가 생겼습니다. 이가 아플 때 거기 가면 될 것 같습니다.", "options": ["진료 과목", "병원 위치", "진료 기록", "병원 업무"], "answer": 1},
+  {"id": 17, "type": "mcq", "text": "[17 – 18] 다음 글을 읽고 내용과 같은 것을 고르십시오.<p>17. 아리랑은 가장 유명한 한국의 민요 중 하나이다. 아리랑은 지역과 시기에 따라 다양하게 불려 왔는데 대략 600 여종이 된다. 원래 아리랑은 일을 하면서 겪는 힘듦을 이겨내기 위해서 부른 노동요였다. 그래서 아리랑의 노랫말에는 한국인의 정서와 한이 담겨 있다. 그래서 한국인의 동질성을 확인하고 단결이 필요할 때 자주 불리어 왔다. 현대에도 아리랑은 새롭게 편곡되어 영화, 뮤지컬, 드라마, 춤, 문학 등을 비롯한 여러 예술 장르와 매체에서 활용되며 여전히 사랑받고 있다.", "options": ["한국인들은 아리랑을 통해 전통적인 한국 사회를 그리워한다.", "아리랑은 한민족을 하나로 묶고 소통을 가능하게 하는 힘을 가진다.", "아리랑은 기본적으로 단순한 노래이고 동요로서 그 가치가 있다.", "한국의 젊은이들은 아리랑의 슬픈 정서를 더 이상 공감하지 못한다."], "answer": 2},
+  {"id": 18, "type": "mcq", "text": "18. 어버이날은 낳으시고 길러주신 어버이의 은혜에 감사하고, 어르신을 공경하는 마음을 키우기 위하여 제정한 기념일로 매년 5 월 8 일 입니다. 예전에는 어머니날만 기념하였지만 1973 년 3 월 30 일에 '어버이날'로 바꾸어 지정되었습니다. 이 날에 는 각 가정에서 자녀들이 부모와 조부모에게 카네이션을 달아드리고 감사의 뜻으로 선물을 하거나 효도관광에 모시기도 합니다.", "options": ["부모들 위해서 한국에서는 어버이날을 기념합니다.", "어버이날에는 여행하러 가는 풍습이 있습니다.", "3 월에 30 일에는 어버이날을 기념하고 카네이선을 선물합니다.", "예전부터 아버지날을 기념해서 부모님께 감사 드렸습니다."], "answer": 1},
+  {"id": 19, "type": "mcq", "text": "[19 – 20] 다음 설명에 알맞은 어휘를 고르십시오.<p>19. 고수의 북에 맞춰서 한 사람이 긴 이야기를 노래로 하는 공연 예술이다. 고수의북소리와 청종의 추임새가 합쳐져서 완성된다.", "options": ["아리앙", "판소리", "애국가.", "사물놀이"], "answer": 2},
+  {"id": 20, "type": "mcq", "text": "20. 머리 스타일을 원하는 형태로 바꿀 수 있으며, 바람이 불어도 그 형태를 유지할 수있습니다.", "options": ["러션", "헤어왁스", "면도크림", "샴푸"], "answer": 2},
+  {"id": 21, "type": "mcq_audio", "text": "듣기 ( 20 문항 )<p>[ 21 – 24 ] 들은 것을 고르십시오.<p>21.", "audio": "21.mp3", "options": ["그전", "구석", "그물", "구적"], "answer": 2},
+  {"id": 22, "type": "mcq_audio", "text": "22.", "audio": "22.mp3", "options": ["빌려 주세요.", "그려 주세요.", "가르쳐 주세요.", "기다려 주세요."], "answer": 2},
+  {"id": 23, "type": "mcq_audio_img", "text": "23.", "audio": "23.mp3", "img_options": ["23a1.jpg", "23a2.jpg", "23a3.jpg", "23a4.jpg"], "answer": 2}, 
+  {"id": 24, "type": "mcq_audio_img", "text": "24.", "audio": "24.mp3", "img_options": ["24a1.jpg", "24a2.jpg", "24a3.jpg", "24a4.jpg"], "answer": 1}, 
+  {"id": 25, "type": "mcq_audio_img_mix", "text": "[ 25 – 29 ] 그림을 보고 알맞은 대답을 고르십시오.<p>25. 이것은 무엇입니까 ?", "audio": "25.mp3", "img": "25.jpg", "audio_options": ["25a1.mp3", "25a2.mp3", "25a3.mp3", "25a4.mp3"], "answer": 3},
+  {"id": 26, "type": "mcq_audio_img_mix", "text": "26. 여기는 어디입니까 ?", "audio": "26.mp3", "img": "26.jpg", "audio_options": ["26a1.mp3", "26a2.mp3", "26a3.mp3", "26a4.mp3"], "answer": 4},
+  {"id": 27, "type": "mcq_audio_img_mix", "text": "27. 이 사람은 무엇을 하고 있습니까 ?", "audio": "27.mp3", "img": "27.jpg", "audio_options": ["27a1.mp3", "27a2.mp3", "27a3.mp3", "27a4.mp3"], "answer": 2},
+  {"id": 28, "type": "mcq_audio_img_mix", "text": "28. 얼마나 있습니까 ?", "audio": "28.mp3", "img": "28.jpg", "audio_options": ["28a1.mp3", "28a2.mp3", "28a3.mp3", "28a4.mp3"], "answer": 4},
+  {"id": 29, "type": "mcq_audio_img_mix", "text": "29. 주차장이 어디에 있습니까 ?", "audio": "29.mp3", "img": "29.jpg", "audio_options": ["29a1.mp3", "29a2.mp3", "29a3.mp3", "29a4.mp3"], "answer": 3},
+  {"id": 30, "type": "mcq_audio", "text": "[ 30 – 33 ] 다음을 듣고 질문에 알맞은 대답을 고르십시오.<p>30.", "audio": "30.mp3", "options": ["친구가 찍어 주었어요.", "어제 춘천에서 찍었어요.", "여름 휴가 때 찍었어요.", "페이스북에 올려 놓았어요."], "answer": 2},
+  {"id": 31, "type": "mcq_audio", "text": "31.", "audio": "31.mp3", "options": ["선풍기는 고장이 났어요.", "전기를 아낄 수 있어서요.", "창문을 열어도 안 돼요.", "에어컨을 사용할 수 없어요."], "answer": 1},
+  {"id": 32, "type": "mcq_audio", "text": "32.", "audio": "32.mp3", "options": ["매일 8 시 반에 출근해야 돼요.", "가까우니까 자전거를 이용해요.", "버스로 가는 방법은 몰라요.", "지하철을 타면 사람이 많아요."], "answer": 2},
+  {"id": 33, "type": "mcq_audio", "text": "33.", "audio": "33.mp3", "options": ["작업복을 입고 단추를 잠가야돼요.", "월급도 많고 시설도 아주 좋아요.", "내일 서류를 가지고 다시 올게요.", "3 개월 동안 월급을 못 받아서요."], "answer": 4},
+  {"id": 34, "type": "mcq_audio", "text": "[ 34 – 35 ] 다음을 듣고 이어지는 말을 고르십시오.<p>34.", "audio": "34.mp3", "options": ["미안해요, 너무 가려워서 잠깐 벗었어요.", "알겠어요, 이 일을 끝낸 후에 착용할게요.", "미안해요, 앞으로는 작업복을 꼭 입을게요.", "괜찮아요, 이따가 가지고 와서 사용하세요."], "answer": 1}, 
+  {"id": 35, "type": "mcq_audio", "text": "35.", "audio": "35.mp3", "options": ["잘 했어요. 약을 꾸준히 복용해야 돼요.", " 잘 됐네요. 퇴원해도 며칠 정도 푹 쉬세요.", "아쉽네요. 그럼 언제 쯤 퇴원하려고 해요.", "다행이에요. 귀국보험에 꼭 가입해야 돼요."], "answer": 4},
+  {"id": 36, "type": "mcq_audio_img", "text": "[ 36 – 37 ] 잘 듣고 들은 내용과 관계있는 그림을 고르십시오.<p>36.", "audio": "35.mp3", "img_options": ["36a1.jpg", "36a2.jpg", "36a3.jpg", "36a4.jpg"], "answer": 2},
+  {"id": 37, "type": "mcq_audio_img", "text": "37.", "audio": "35.mp3", "img_options": ["37a1.jpg", "37a2.jpg", "37a3.jpg", "37a4.jpg"], "answer": 2},
+  {"id": 38, "type": "mcq_audio", "text": "[ 38 – 40 ] 이야기를 듣고 질문에 알맞은 대답을 고르십시오.<p>38. 여자가 이어서 할 행동으로 가장 알맞은 것을 고르십시오.", "audio": "38.mp3", "options": ["공항에 간다.", "일찍 잠을 잔다.", "8 시 30 분에 비행기를 탄다.", "휴대 전화로 알람 시간을 맞춘다."], "answer": 4},
+  {"id": 39, "type": "mcq_audio", "text": "39. 다음 중 들은 내용과 같은 것을 고르십시오.", "audio": "39.mp3", "options": ["여자는 회사에 다니고 있습니다.", "남자는 회사에서 여자를 만났습니다.", "남자는 지금 요리를 배우고 있습니다.", "여자는 아침에 요리를 배우고 싶어 합니다."], "answer": 1},
+  {"id": 40, "type": "mcq_audio", "text": "40. 다음 중 들은 내용과 같은 것을 고르십시오.", "audio": "40.mp3", "options": ["남자는 책을 잘못 주문했습니다.", "남자는 주문한 사람을 잘 압니다.", "여자는 인터넷에서 책을 샀습니다.", "여자는 주말에 책을 주문했습니다."], "answer": 3}];
+
+const ASSET_PATH = "assets/";
+let answers = {};
+let current = 0;
+let submitted = false;
+let totalSeconds = 50*60;
+let timerInterval = null;
+let audioPlayed = {};
+let playingAudio = null;
+
+function pad(n){return n<10? "0"+n:n;}
+
+function startTimer(){
+  const timerEl = document.getElementById('timer');
+  function tick(){
+    if(totalSeconds<=0){ clearInterval(timerInterval); autoSubmit(); return; }
+    totalSeconds--;
+    let m = Math.floor(totalSeconds/60);
+    let s = totalSeconds%60;
+    timerEl.textContent = pad(m)+":"+pad(s);
+  }
+  timerInterval = setInterval(tick,1000);
+  tick();
+}
+
+function renderQNumbers(){
+  const container = document.getElementById('qnumbers');
+  container.innerHTML = "";
+  questions.forEach((q,i)=>{
+    const btn = document.createElement('button');
+    btn.textContent = i+1;
+    btn.title = "Ke soal "+(i+1);
+    btn.addEventListener('click',()=> showPage(i));
+    container.appendChild(btn);
+  });
+}
+
+function renderPages(){
+  const pages = document.getElementById('pages');
+  pages.innerHTML = "";
+  questions.forEach((q,i)=>{
+    const page = document.createElement('section');
+    page.className = "page";
+    page.id = "page-"+i;
+    page.setAttribute('data-index', i);
+    let html = "<h3>Halaman "+(i+1)+"</h3>";
+    html += "<div class='question-text'>"+(q.text? q.text.replace(/\n/g,'<br>'):'')+"</div>";
+    if(q.img && q.type === "mcq_img") {
+    html += '<img src="'+ASSET_PATH+q.img+'" class="question-img" alt="Gambar soal '+(i+1)+'">';
+}
+    if(q.type && q.type.includes("audio")) html += '<div style="margin-top:8px;"><button class="audioPlayOnce" data-audio="'+(q.audio||'')+'">Play Audio</button></div>';
+    html += '<div class="options">';
+    if(q.type === "mcq" || q.type === "mcq_img" || q.type === "mcq_audio"){
+      q.options.forEach((opt,idx)=>{
+        html += '<div class="option" data-choice="'+(idx+1)+'" tabindex="0"><span class="label">'+(idx+1)+'.</span><span class="opt-text">'+opt+'</span></div>';
+      });
+    } else if(q.type === "mcq_audio_img"){
+      q.img_options.forEach((opt,idx)=>{
+        html += '<div class="option" data-choice="'+(idx+1)+'" tabindex="0"><img src="'+ASSET_PATH+opt+'" class="img-option" alt="Pilihan '+(idx+1)+'"></div>';
+      });
+    } else if(q.type === "mcq_audio_img_mix"){
+      if(q.img) html += '<img src="'+ASSET_PATH+q.img+'" class="question-img" alt="Gambar soal '+(i+1)+'">';
+      q.audio_options.forEach((aud,idx)=>{
+        html += '<div class="option" data-choice="'+(idx+1)+'" tabindex="0"><button class="audioPlayOnce" data-audio="'+aud+'">Play option '+(idx+1)+'</button></div>';
+      });
+    } else if(q.type === "mcq_audio_options"){
+      q.audio_options.forEach((aud,idx)=>{
+        html += '<div class="option" data-choice="'+(idx+1)+'" tabindex="0"><button class="audioPlayOnce" data-audio="'+aud+'">Play option '+(idx+1)+'</button></div>';
+      });
+    }
+    html += "</div>";
+    page.innerHTML = html;
+    pages.appendChild(page);
+  });
+
+  // attach interactions
+  document.querySelectorAll('.option').forEach(opt=>{
+    opt.addEventListener('click', (e)=>{
+      if(submitted) return;
+      const choice = parseInt(opt.getAttribute('data-choice'));
+      const page = opt.closest('.page');
+      const idx = parseInt(page.getAttribute('data-index'));
+      page.querySelectorAll('.option').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      answers[idx+1] = choice;
+      let btn = document.querySelectorAll('#qnumbers button')[idx];
+btn.style.backgroundColor = '#007bff';   // biru full
+btn.style.color = '#ffffff';             // tulisan putih agar jelas
+btn.style.borderColor = '#007bff';       // border ikut biru
+  });
+    opt.addEventListener('keypress', (e)=>{ if(e.key==='Enter'){ opt.click(); } });
+  });
+
+  // audio play once
+  function handleAudioButton(btn){
+    btn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      const src = btn.getAttribute('data-audio');
+      if(!src) return;
+      if(audioPlayed[src]){ alert('Audio hanya bisa diputar satu kali.'); return; }
+      if(playingAudio){ try{ playingAudio.pause(); }catch{} }
+      const aud = new Audio(ASSET_PATH + src);
+      playingAudio = aud;
+      aud.play().catch(()=>{ alert('Gagal memutar audio. Pastikan file ada.'); });
+      audioPlayed[src] = true;
+      btn.disabled = true;
+      btn.textContent = "Played";
+      aud.addEventListener('ended', ()=> { playingAudio = null; });
+    });
+  }
+  document.querySelectorAll('.audioPlayOnce').forEach(handleAudioButton);
+}
+
+function showPage(i){
+  if(i<0) i=0;
+  if(i>=questions.length) i=questions.length-1;
+  current = i;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const p = document.getElementById('page-'+i);
+  if(p) p.classList.add('active');
+  // Highlight halaman aktif
+document.querySelectorAll('#qnumbers button').forEach((btn, idx)=>{
+    if(idx === i){
+        btn.style.border = "3px solid red";    // border merah tebal
+    } else {
+        btn.style.border = "1px solid #ccc";   // kembali normal
+    }
+});
+  document.getElementById('prevBtn').disabled = (i===0);
+  document.getElementById('nextBtn').disabled = (i===questions.length-1);
+}
+
+document.getElementById('prevBtn').addEventListener('click', ()=> showPage(current-1));
+document.getElementById('nextBtn').addEventListener('click', ()=> showPage(current+1));
+document.getElementById('submitBtn').addEventListener('click', submitQuiz);
+
+function calculateScore(){
+  let score = 0;
+  questions.forEach((q,idx)=>{
+    const user = answers[idx+1];
+    if(user && user === q.answer) score++;
+  });
+  return score;
+}
+
+function lockAnswers(){
+  submitted = true;
+
+  document.querySelectorAll('.page').forEach((page, idx)=>{
+    const q = questions[idx];
+    const correct = q.answer;
+
+    const options = page.querySelectorAll('.option');
+    options.forEach((opt)=>{
+      const choice = parseInt(opt.getAttribute('data-choice'));
+
+      // Kunci opsi
+      opt.classList.add('disabled');
+
+      // Jika benar → hijau
+      if(choice === correct){
+        opt.style.background = "#d4f8d4";
+        opt.style.borderColor = "#2ecc71";
+      }
+
+      // Jika dipilih tapi salah → merah
+      if(answers[idx+1] === choice && choice !== correct){
+        opt.style.background = "#ffd6d6";
+        opt.style.borderColor = "#e74c3c";
+      }
+    });
+  });
+
+  // Nonaktifkan audio
+  document.querySelectorAll('#qnumbers button')[idx].style.borderColor = '#008cff';      // biru tebal
+document.querySelectorAll('#qnumbers button')[idx].style.backgroundColor = '#cfe9ff';  // biru muda
+}
+
+function submitQuiz(){
+  if(!confirm("Yakin ingin submit?")) return;
+  if(submitted) return;
+  clearInterval(timerInterval);
+  const score = calculateScore();
+  const box = document.getElementById('scoreBox');
+  box.style.display = "block";
+  box.innerHTML = "<strong>Skor Anda: "+score+" / "+questions.length+"</strong>";
+  lockAnswers();
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+function autoSubmit(){
+  if(submitted) return;
+  submitted = true;            // kunci agar tidak double submit
+  clearInterval(timerInterval);
+  const score = calculateScore();
+  const box = document.getElementById('scoreBox');
+  box.style.display = "block";
+  box.innerHTML = "<strong>Skor Anda: "+score+" / "+questions.length+"</strong>";
+  lockAnswers();
+  box.scrollIntoView({behavior:'smooth'});
+}
+
+window.addEventListener('load', ()=>{ renderQNumbers(); renderPages(); showPage(0); startTimer(); });
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
